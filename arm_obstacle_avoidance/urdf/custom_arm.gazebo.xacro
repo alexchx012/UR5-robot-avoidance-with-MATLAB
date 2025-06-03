@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:macro name="custom_arm_gazebo">
+
+    <!-- 设置连杆的视觉属性 -->
+    <gazebo reference="base_link">
+      <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="shoulder_link">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <gazebo reference="upper_arm_link">
+      <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="forearm_link">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <gazebo reference="wrist_1_link">
+      <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="wrist_2_link">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <gazebo reference="wrist_3_link">
+      <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="ee_link">
+      <material>Gazebo/Green</material>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

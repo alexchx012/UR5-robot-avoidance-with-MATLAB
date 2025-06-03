@@ -1,0 +1,73 @@
+arm_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - shoulder_pan_joint
+    - shoulder_lift_joint
+    - elbow_joint
+    - wrist_1_joint
+    - wrist_2_joint
+    - wrist_3_joint
+
+  # 添加初始位置设置
+  initial_position:
+    shoulder_pan_joint: 0.0      # 肩部旋转关节（基座关节），控制整个机械臂的水平旋转
+    shoulder_lift_joint: 1.5708      # 肩部抬升关节，控制大臂的上下摆动
+    elbow_joint: 0.0             # 肘部关节，控制小臂相对于大臂的弯曲
+    wrist_1_joint: 0.0           # 手腕1关节，控制手腕的第一个旋转轴
+    wrist_2_joint: 1.5708       # 手腕2关节，控制手腕的第二个旋转轴（-90度，使末端执行器垂直向下）
+    wrist_3_joint: 0.0           # 手腕3关节，控制末端执行器的旋转
+  constraints:
+    goal_time: 0.6
+    stopped_velocity_tolerance: 0.05 # rad/s
+    shoulder_pan_joint:
+      trajectory: 0.1 # rad
+      goal: 0.1 # rad
+    shoulder_lift_joint:
+      trajectory: 0.1 # rad
+      goal: 0.1 # rad
+    elbow_joint:
+      trajectory: 0.1 # rad
+      goal: 0.1 # rad
+    wrist_1_joint:
+      trajectory: 0.1 # rad
+      goal: 0.1 # rad
+    wrist_2_joint:
+      trajectory: 0.1 # rad
+      goal: 0.1 # rad
+    wrist_3_joint:
+      trajectory: 0.1 # rad
+      goal: 0.1 # rad
+  stop_trajectory_duration: 0.5 # s
+  state_publish_rate: 25 # Hz
+  action_monitor_rate: 10 # Hz
+
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50 # Hz
+
+# 修改这部分，将其移到custom_arm命名空间下
+/custom_arm/gazebo_ros_control/pid_gains:
+  shoulder_pan_joint:
+    p: 15.0   
+    i: 0.05  
+    d: 2.0    
+  shoulder_lift_joint:
+    p: 80.0   
+    i: 0.8   
+    d: 8.0    
+  elbow_joint:
+    p: 25.0   
+    i: 0.1  
+    d: 3.0   
+  wrist_1_joint:
+    p: 20.0    
+    i: 0.08  
+    d: 2.5
+  wrist_2_joint:
+    p: 20.0    
+    i: 0.08  
+    d: 2.5
+  wrist_3_joint:
+    p: 15.0    
+    i: 0.05  
+    d: 2.0

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- 设置使用仿真时间 -->
+  <param name="use_sim_time" value="true" />
+
+  <!-- 启动Gazebo并加载世界文件 -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find arm_obstacle_avoidance)/worlds/arm_obstacle_world.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <!-- 加载机械臂描述 -->
+  <include file="$(find arm_obstacle_avoidance)/launch/load_arm.launch" />
+
+  <!-- Spawn the robot in Gazebo -->
+  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -param robot_description -model custom_arm 
+              -x 0.6 -y 0.0 -z 0.05"
+        output="screen" />
+
+  <!-- 加载控制器配置 - 修改这一行，确保加载到正确的命名空间 -->
+  <rosparam file="$(find arm_obstacle_avoidance)/config/arm_controllers.yaml" command="load" ns="/custom_arm" />
+
+  <!-- 先启动joint_state_controller，然后再启动其他控制器 -->
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/custom_arm" 
+        args="joint_state_controller" />
+        
+  <!-- 等待joint_state_controller启动后再启动arm_controller -->
+  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/custom_arm" 
+        args="arm_controller" 
+        launch-prefix="bash -c 'sleep 3; $0 $@'" />
+
+  <!-- 启动RViz进行可视化 -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find arm_obstacle_avoidance)/config/arm_config.rviz" />
+</launch>

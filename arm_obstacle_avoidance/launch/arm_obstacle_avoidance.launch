@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- 启动Gazebo和机械臂 -->
+  <include file="$(find arm_obstacle_avoidance)/launch/arm_gazebo.launch" />
+  
+  <!-- 启动规划服务 -->
+  <include file="$(find arm_obstacle_avoidance)/launch/planning_service.launch" />
+</launch>

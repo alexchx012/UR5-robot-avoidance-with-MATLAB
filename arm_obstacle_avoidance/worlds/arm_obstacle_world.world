@@ -1,0 +1,159 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="arm_obstacle_world">
+    <!-- 设置物理引擎参数 -->
+    <physics type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <gravity>0 0 -9.81</gravity>
+    </physics>
+
+    <!-- 添加光源 -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- 添加地面 -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- 添加桌子 -->
+    <model name="table">
+      <static>true</static>
+      <pose>0.6 0 0 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1.5 1.5 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.5 1.5 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 添加静态障碍物 - 立方体 -->
+    <!-- 定义一个名为obstacle_box的静态障碍物模型，用于机械臂避障测试 -->
+    <model name="obstacle_box">
+      <!-- 设置为静态物体，不受物理引擎影响，固定在世界坐标系中 -->
+      <static>true</static>
+      <!-- 障碍物位置和姿态：x=0.5m, y=0.2m, z=0.175m（高度为立方体高度的一半） -->
+      <!-- 旋转角度：roll=0, pitch=0, yaw=0（无旋转） -->
+      <pose>0.5 0.2 0.175 0 0 0</pose>
+      <link name="link">
+        <!-- 碰撞检测几何体定义 -->
+        <collision name="collision">
+          <geometry>
+            <!-- 立方体尺寸：长0.125m × 宽0.125m × 高0.25m -->
+            <box>
+              <size>0.125 0.125 0.25</size>
+            </box>
+          </geometry>
+        </collision>
+        <!-- 视觉显示几何体定义 -->
+        <visual name="visual">
+          <geometry>
+            <!-- 视觉几何体与碰撞几何体保持一致 -->
+            <box>
+              <size>0.125 0.125 0.25</size>
+            </box>
+          </geometry>
+          <!-- 材质设置：使用Gazebo预定义的红色材质 -->
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Red</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 添加静态障碍物 - 圆柱体 -->
+    <model name="obstacle_cylinder">
+      <static>true</static>
+      <pose>0.7 -0.2 0.175 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>0.0625</radius>
+              <length>0.3125</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.0625</radius>
+              <length>0.3125</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Blue</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 添加起点标记 -->
+    <model name="start_marker">
+      <static>true</static>
+      <pose>0.0 -0.6 0.075 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <sphere>
+              <radius>0.025</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Green</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 添加终点标记 -->
+    <model name="goal_marker">
+      <static>true</static>
+      <pose>1.2 0.6 0.075 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <sphere>
+              <radius>0.025</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Yellow</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

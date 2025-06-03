@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!-- 定义机器人模型，使用xacro进行参数化 -->
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="custom_arm">
+
+    <!-- 包含世界到基座的连接定义 -->
+    <xacro:include filename="$(find arm_obstacle_avoidance)/urdf/world_to_base.urdf.xacro" />
+    
+    <!-- 包含UR5机械臂的XACRO定义 -->
+    <!-- 注意：路径 $(find ur_description) 应指向正确的URDF描述包 -->
+    <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
+
+    <!-- 包含自定义相机的Gazebo插件XACRO定义 -->
+    <!-- 这个文件定义了相机的传感器属性和Gazebo仿真插件 -->
+    <xacro:include filename="$(find arm_obstacle_avoidance)/urdf/custom_camera.gazebo.xacro" />
+    
+    <!-- 包含自定义机械臂的Gazebo插件XACRO定义 -->
+    <!-- 这个文件定义了PID增益参数 -->
+    <xacro:include filename="$(find arm_obstacle_avoidance)/urdf/custom_arm.gazebo.xacro" />
+    
+    <!-- 包含自定义机械臂的传动配置 -->
+    <xacro:include filename="$(find arm_obstacle_avoidance)/urdf/custom_arm.transmission.xacro" />
+
+    <!-- 定义常量 PI，用于后续计算 -->
+    <xacro:property name="PI" value="3.1415926535897931" />
+    
+    <!-- 添加世界到基座的连接 -->
+    <xacro:world_to_base />
+
+    <!-- 实例化UR5机器人模型 -->
+    <!-- prefix="": 机器人的连杆和关节名称前缀，空表示不加前缀 -->
+    <!-- joint_limited="true": 使用关节限位 -->
+    <!-- 下面定义了各关节的运动范围 -->
+    <xacro:ur5_robot prefix="" joint_limited="true"
+      shoulder_pan_lower_limit="${-2*PI}" shoulder_pan_upper_limit="${2*PI}"
+      shoulder_lift_lower_limit="${-PI/2}" shoulder_lift_upper_limit="${PI/2}"
+      elbow_joint_lower_limit="${-0.75*PI}" elbow_joint_upper_limit="${0.75*PI}"
+      wrist_1_lower_limit="${-2*PI}" wrist_1_upper_limit="${2*PI}"
+      wrist_2_lower_limit="${-2*PI}" wrist_2_upper_limit="${2*PI}"
+      wrist_3_lower_limit="${-2*PI}" wrist_3_upper_limit="${2*PI}"
+    />
+
+    <!-- 定义夹爪和TCP（工具中心点）的偏移量 -->
+    <xacro:property name="gripper_base_offset" value="0.030" /> <!-- 夹爪基座相对于 wrist_3_link 的偏移 -->
+    <xacro:property name="tcp_offset" value="0.150" />        <!-- TCP相对于夹爪基座的偏移 -->
+
+    <!-- 定义夹爪基座连杆 (Gripper Base Link) -->
+    <link name="gripper_base_link">
+        <visual> <!-- 定义外观 -->
+            <geometry>
+                <box size="0.05 0.05 0.05"/> <!-- 5cm立方体 -->
+            </geometry>
+            <origin xyz="0 0 0.025" rpy="0 0 0"/> <!-- 视觉模型的原点偏移 -->
+            <material name="Grey"> <!-- 材质颜色 -->
+                <color rgba="0.5 0.5 0.5 1" />
+            </material>
+        </visual>
+        <collision> <!-- 定义碰撞模型 -->
+            <geometry>
+                <box size="0.05 0.05 0.05"/>
+            </geometry>
+            <origin xyz="0 0 0.025" rpy="0 0 0"/>
+        </collision>
+        <inertial> <!-- 定义惯性参数 -->
+            <mass value="0.1" /> <!-- 质量 -->
+            <inertia ixx="0.00004166666666666667" ixy="0.0" ixz="0.0"
+                     iyy="0.00004166666666666667" iyz="0.0"
+                     izz="0.00004166666666666667" /> <!-- 转动惯量 -->
+        </inertial>
+    </link>
+
+    <!-- 定义连接 wrist_3_link 和 gripper_base_link 的固定关节 -->
+    <joint name="gripper_base_joint" type="fixed">
+        <parent link="wrist_3_link"/> <!-- 父连杆 -->
+        <child link="gripper_base_link"/> <!-- 子连杆 -->
+        <origin xyz="0 0 ${gripper_base_offset}" rpy="0 0 0"/> <!-- 关节原点，使用之前定义的偏移量 -->
+    </joint>
+
+    <!-- 定义工具中心点连杆 (Tool Center Point - TCP) -->
+    <!-- TCP通常是一个虚拟连杆，代表工具的实际操作点 -->
+    <link name="tcp_link"/>
+    <!-- 定义连接 gripper_base_link 和 tcp_link 的固定关节 -->
+    <joint name="tcp_joint" type="fixed">
+        <parent link="gripper_base_link"/>
+        <child link="tcp_link"/>
+        <origin xyz="0 0 ${tcp_offset}" rpy="0 0 0"/> <!-- TCP相对于夹爪基座的偏移 -->
+    </joint>
+
+    <!-- 实例化并附加自定义相机到指定的连杆 -->
+    <!-- prefix="camera_": 相机相关link和joint的名称前缀 -->
+    <!-- parent_link="wrist_3_link": 相机附加到 wrist_3_link -->
+    <xacro:custom_camera_gazebo prefix="camera_" parent_link="wrist_3_link">
+        <!-- origin: 相机相对于 parent_link 的位置和姿态 -->
+        <!-- xyz="0.05 0 0": 沿X轴正向偏移0.05米 -->
+        <!-- rpy="0 ${PI/2} 0": 绕Y轴旋转90度 -->
+        <origin xyz="0.05 0 0" rpy="0 ${PI/2} 0" />
+    </xacro:custom_camera_gazebo>
+
+    <!-- 调用自定义机械臂的Gazebo配置宏 -->
+    <xacro:custom_arm_gazebo />
+    
+    <!-- 添加gazebo_ros_control插件 -->
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/custom_arm</robotNamespace>
+            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+            <legacyModeNS>true</legacyModeNS>
+        </plugin>
+    </gazebo>
+
+</robot>

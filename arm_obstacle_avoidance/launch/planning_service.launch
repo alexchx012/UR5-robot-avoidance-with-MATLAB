@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- 启动规划服务节点 -->
+  <node name="planning_service" pkg="arm_obstacle_avoidance" type="planning_service.py" output="screen" />
+</launch>

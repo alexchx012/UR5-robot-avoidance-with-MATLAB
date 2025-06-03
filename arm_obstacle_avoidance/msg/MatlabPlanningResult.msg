@@ -1,0 +1,4 @@
+bool success
+string message
+trajectory_msgs/JointTrajectory planned_trajectory
+bool environment_has_changed_significantly

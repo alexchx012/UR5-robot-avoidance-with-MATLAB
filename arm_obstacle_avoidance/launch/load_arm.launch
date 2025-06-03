@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- 加载机械臂描述参数 -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find arm_obstacle_avoidance)/urdf/custom_arm.urdf.xacro'" />
+
+  <!-- 发布机器人状态 -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- 关节状态发布器 -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="false" />
+    <rosparam param="source_list">[/custom_arm/joint_states]</rosparam>
+  </node>
+</launch>

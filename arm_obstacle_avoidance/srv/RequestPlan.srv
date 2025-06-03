@@ -1,0 +1,10 @@
+﻿sensor_msgs/PointCloud2 current_obstacle_map
+geometry_msgs/PoseStamped current_ee_pose
+float64[] current_joint_values
+geometry_msgs/PoseStamped goal_ee_pose
+bool validate_environment_only
+---
+trajectory_msgs/JointTrajectory planned_trajectory
+bool success
+string message
+bool environment_has_changed_significantly
